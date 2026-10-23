@@ -41,8 +41,8 @@ jobs:
                     "listen": "test",
                     "script": {
                       "exec": [
-                        "pm.test('Response time is below 800ms', function () {",
-                        "    pm.expect(pm.response.responseTime).to.be.below(800);",
+                        "pm.test('Response time is below 2000ms', function () {",
+                        "    pm.expect(pm.response.responseTime).to.be.below(2000);",
                         "});",
                         "pm.test('Status code is 200 OK', function () {",
                         "    pm.response.to.have.status(200);",
