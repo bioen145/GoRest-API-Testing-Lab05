@@ -1,0 +1,340 @@
+{
+  "info": {
+    "_postman_id": "5282902d-594a-472d-b76e-76e8d11e3cce",
+    "name": "2474802010279_NguyenMinhNhat_GoRest",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "59055594"
+  },
+  "item": [
+    {
+      "name": "Positive_TCs",
+      "item": [
+        {
+          "name": "Create User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\nvar jsonData = pm.response.json();\nif (jsonData && jsonData.id) {\n    pm.environment.set(\"userId\", jsonData.id);\n}"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var rawEmail = pm.iterationData.get(\"email\") || pm.variables.get(\"email\") || \"bioenondamicright@gmail.com\";",
+                  "var emailParts = rawEmail.split(\"@\");",
+                  "var uniqueEmail = emailParts[0] + \"_\" + Date.now() + \"_\" + Math.floor(Math.random() * 1000) + \"@\" + (emailParts[1] || \"gmail.com\");",
+                  "",
+                  "pm.variables.set(\"email\", uniqueEmail);",
+                  "",
+                  "if (pm.iterationData.get(\"name\")) pm.variables.set(\"name\", pm.iterationData.get(\"name\"));",
+                  "if (pm.iterationData.get(\"gender\")) pm.variables.set(\"gender\", pm.iterationData.get(\"gender\"));",
+                  "if (pm.iterationData.get(\"status\")) pm.variables.set(\"status\", pm.iterationData.get(\"status\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{name}}\",\n  \"gender\": \"{{gender}}\",\n  \"email\": \"{{email}}\",\n  \"status\": \"{{status}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/users",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Verify returned User ID matches environment variable\", function () {\r\n    var responseData = pm.response.json();\r\n    pm.expect(responseData.id).to.eql(parseInt(pm.environment.get(\"userId\")));\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/users/{{userId}}",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Verify status updated to inactive\", function () {\r\n    var responseData = pm.response.json();\r\n    pm.expect(responseData.status).to.eql(\"inactive\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"inactive\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/users/{{userId}}",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Inactive User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204 No Content\", function () {\r\n    pm.response.to.have.status(204);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/users/{{userId}}",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Negative_TCs",
+      "item": [
+        {
+          "name": "Create User with Invalid Authentication",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401 Unauthorized\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"No Auth User\",\r\n  \"gender\": \"male\",\r\n  \"email\": \"noauth_test@example.com\",\r\n  \"status\": \"active\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/users",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Duplicate Email",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var targetEmail = \"dup_test_\" + Date.now() + \"@gmail.com\";",
+                  "pm.variables.set(\"dup_email\", targetEmail);",
+                  "",
+                  "var baseUrl = pm.environment.get(\"baseurl\") || \"https://gorest.co.in/public/v2\";",
+                  "var token = pm.environment.get(\"token\");",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: baseUrl + \"/users\",",
+                  "    method: 'POST',",
+                  "    header: {",
+                  "        'Content-Type': 'application/json',",
+                  "        'Authorization': 'Bearer ' + token",
+                  "    },",
+                  "    body: {",
+                  "        mode: 'raw',",
+                  "        raw: JSON.stringify({",
+                  "            name: \"Duplicate Base User\",",
+                  "            gender: \"male\",",
+                  "            email: targetEmail,",
+                  "            status: \"active\"",
+                  "        })",
+                  "    }",
+                  "}, function (err, res) {});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422 Unprocessable Entity\", function () {\r\n    pm.response.to.have.status(422);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Duplicate User\",\n  \"gender\": \"male\",\n  \"email\": \"{{dup_email}}\",\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/users",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Deleted",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", function () {\r\n    pm.response.to.have.status(404);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/users/{{userId}}",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "user_index",
+      "value": ""
+    }
+  ]
+}
