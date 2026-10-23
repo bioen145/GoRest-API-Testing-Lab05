@@ -2,8 +2,8 @@ name: Production API Monitoring
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Chạy tự động mỗi giờ
-  workflow_dispatch:      # Kích hoạt thủ công
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
   monitor:
@@ -21,7 +21,39 @@ jobs:
       - name: Install Newman
         run: npm install -g newman
 
-      - name: Check API Response Time Below 800ms
+      - name: Create Monitor Collection and Execute Check
         run: |
-          newman run - --url "https://gorest.co.in/public/v2/users" \
-            --test-script "pm.test('Response time is below 800ms', function () { pm.expect(pm.response.responseTime).to.be.below(800); }); pm.test('Status is 200 OK', function () { pm.response.to.have.status(200); });"
+          cat << 'EOF' > monitor_collection.json
+          {
+            "info": {
+              "name": "GoRest API Monitor",
+              "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+            },
+            "item": [
+              {
+                "name": "GET Users Response Time Check",
+                "request": {
+                  "method": "GET",
+                  "url": "https://gorest.co.in/public/v2/users"
+                },
+                "event": [
+                  {
+                    "listen": "test",
+                    "script": {
+                      "exec": [
+                        "pm.test('Response time is below 800ms', function () {",
+                        "    pm.expect(pm.response.responseTime).to.be.below(800);",
+                        "});",
+                        "pm.test('Status code is 200 OK', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});"
+                      ],
+                      "type": "text/javascript"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          newman run monitor_collection.json
